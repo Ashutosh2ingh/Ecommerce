@@ -50,7 +50,8 @@ const CustomizeProducts = ({ colors, sizes, onSizeChange, onColorChange, selecte
         return words.length > 1 ? words[words.length - 1] : words[0];
     };
     
-
+    const selectedColorName = colors.find(color => color.id === currentColor)?.color || '';
+    
     return (
         <div className="flex flex-col gap-6">
             <h4 className="font-medium">Choose a color</h4>
@@ -69,8 +70,13 @@ const CustomizeProducts = ({ colors, sizes, onSizeChange, onColorChange, selecte
                         )}
                     </li>
                 ))}
+                {
+                    currentColor !== null && (
+                        <span className="ms-3 font-bold text-lg text-ashu">{selectedColorName}</span>
+                    )
+                }
             </ul>
-
+            
             <h4 className="font-medium">Choose a size</h4>
             <ul className="grid grid-cols-2 gap-3">
                 {sizes.map((size) => (
