@@ -11,6 +11,8 @@ const NavIcons = () => {
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [cartCount, setCartCount] = useState(0);
+    const [cartItems, setCartItems] = useState([]);
     const [user, setUser] = useState({ token: '' });
     const router = useRouter();
 
@@ -18,11 +20,31 @@ const NavIcons = () => {
         const token = localStorage.getItem('token');
         if (token) {
             setUser({token});
+            fetchCartItems(token);
         }
     }, []);
 
     const handleProfile = () => {
         setIsProfileOpen((prev) => !prev);
+    };
+
+    const fetchCartItems = async (token: string) => {
+        try {
+          const response = await fetch("http://127.0.0.1:8000/cart/", {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setCartItems(data);
+            setCartCount(data.length);            
+          } else {
+            console.error("Failed to fetch cart items");
+          }
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+        }
     };
 
     const handleLogout = async () => {
@@ -109,11 +131,13 @@ const NavIcons = () => {
                     width={22} 
                     height={22}
                 />
-                <div className="absolute -top-4 -right-4 w-6 h-6 bg-ashu rounded-full text-white text-sm flex items-center justify-center">2</div>
+                <div className="absolute -top-4 -right-4 w-6 h-6 bg-ashu rounded-full text-white text-sm flex items-center justify-center">
+                    {cartCount}
+                </div>
             </div>
             {
                 isCartOpen && (
-                    <CartModal/>
+                    <CartModal cartItems={cartItems} />
                 )
             }
         </div>

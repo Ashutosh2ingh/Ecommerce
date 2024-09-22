@@ -169,8 +169,8 @@ const SinglePage = () => {
                 <div className="h-[2px] bg-gray-100" />
 
                 <div className="flex items-center gap-4">
-                    <h3 className="text-xl text-gray-500 line-through">${originalPrice}</h3>
-                    <h2 className="font-medium text-2xl">${price}</h2>
+                    <h3 className="text-xl text-gray-500 line-through">₹{originalPrice}</h3>
+                    <h2 className="font-medium text-2xl">₹{price}</h2>
                 </div>
                 <div className="h-[2px] bg-gray-100" />
 

@@ -105,7 +105,7 @@ const ProductList: React.FC<ProductListProps> = ({ filterType }) => {
                     <div className="flex justify-between">
                         <span className="font-medium">{product.product_name}</span>
                         <span className="font-semibold">
-                            ${product.variations[0]?.discount_price}
+                            ₹{product.variations[0]?.discount_price}
                         </span>
                     </div>
                     <div className="text-sm text-gray-500">
