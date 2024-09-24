@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface Product {
   id: number;
@@ -16,10 +17,12 @@ interface CartItem {
 }
 
 interface CartModalProps {
-    cartItems: CartItem[];
+  cartItems: CartItem[];
 }
 
 const CartModal: React.FC<CartModalProps> = ({ cartItems }) => {
+
+  const router = useRouter();
 
   return (
     <div className="w-max absolute p-4 rounded-md shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-white top-12 right-0 flex flex-col gap-6 z-20">
@@ -92,7 +95,10 @@ const CartModal: React.FC<CartModalProps> = ({ cartItems }) => {
               Shipping and taxes calculated at checkout
             </p>
             <div className="flex justify-between text-sm">
-              <button className="rounded-md py-3 px-4 ring-1 bg-black text-white ring-gray-300 hover:text-black hover:bg-white">
+              <button 
+                className="rounded-md py-3 px-4 ring-1 bg-black text-white ring-gray-300 hover:text-black hover:bg-white"
+                onClick={() => router.push('/cartDetails')}
+              >
                 View Cart
               </button>
             </div>

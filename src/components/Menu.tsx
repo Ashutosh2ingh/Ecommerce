@@ -10,14 +10,34 @@ const Menu = () => {
 
     const [open, setOpen] = useState(false);
     const [user, setUser] = useState({ token: '' });
+    const [cartCount, setCartCount] = useState(0);
     const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             setUser({token});
+            fetchCartItems(token);
         }
     }, []);
+
+    const fetchCartItems = async (token: string) => {
+        try {
+          const response = await fetch("http://127.0.0.1:8000/cart/", {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setCartCount(data.length);            
+          } else {
+            console.error("Failed to fetch cart items");
+          }
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+        }
+    };
 
     const handleLogout = async () => {
         try {
@@ -84,7 +104,7 @@ const Menu = () => {
                                 </>
                             )
                         }
-                        <Link href="/" onClick={()=> setOpen((prev) => !prev)}>cart(1)</Link>
+                        <Link href="/" onClick={()=> setOpen((prev) => !prev)}>cart({cartCount})</Link>
                     </div>
                 )
             }
