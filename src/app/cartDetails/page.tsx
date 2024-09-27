@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Add from '@/components/Add';
 
 interface Product {
   id: number;
@@ -13,11 +14,6 @@ interface Product {
   product_image: string;
   short_description: string;
   stock: number;
-}
-
-interface Offers{
-  id: number;
-  offer: string;
 }
 
 interface CartItem {
@@ -30,7 +26,8 @@ const CartDetails = () => {
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]); 
   const token = localStorage.getItem("token");
-
+  
+  // Fetch Cart Items
   const fetchCartItems = async () => {
     const response = await fetch("http://127.0.0.1:8000/cart/", {
       headers: {
@@ -45,10 +42,46 @@ const CartDetails = () => {
     }
   };
 
+  // Call Cart
   useEffect(() => {
     fetchCartItems(); 
   }, [token]);
 
+  // Update Cart
+  const handleQuantity = async (itemId: number, action: 'i' | 'd') => {
+    const currentItem = cartItems.find(item => item.id === itemId);
+    
+    if (!currentItem) return; 
+
+    let newQuantity = currentItem.quantity;
+    if (action === 'i') {
+      newQuantity += 1;
+    } else if (action === 'd') {
+      newQuantity -= 1;
+    }
+
+    const response = await fetch(`http://127.0.0.1:8000/cart/update/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify({
+        product_variation_id: currentItem.product.id,
+        quantity: newQuantity,
+      }),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      fetchCartItems(); // Refresh the cart items
+    } else {
+      const responseData = await response.json();
+      toast.error(responseData.message);
+    }
+  };
+
+  // Delete Cart Items
   const handleRemove = async (itemId: number) => {
     const response = await fetch(`http://127.0.0.1:8000/cart/delete/${itemId}/`, {
       method: 'DELETE',
@@ -60,9 +93,7 @@ const CartDetails = () => {
     if (response.ok) {
       const responseData = await response.json();
       toast.success(responseData.message);
-      setTimeout(() => {
-        fetchCartItems(); 
-      }, 1000);
+      fetchCartItems(); 
     } else {
       const responseData = await response.json();
       toast.error(responseData.message);
@@ -88,6 +119,7 @@ const CartDetails = () => {
               },
             }}
           >
+
             {/* Image Section */}
             <motion.div
               className="w-full lg:w-1/2 lg:sticky top-20 h-max"
@@ -134,6 +166,7 @@ const CartDetails = () => {
               </div>
               <div className="h-[2px] bg-gray-100" />
   
+              {/* Highlights */}
               <div className="text-sm">
                 <h4 className="font-bold mb-4">Highlights</h4>
                 <ul className="list-disc ml-5">
@@ -143,10 +176,36 @@ const CartDetails = () => {
                 </ul>
               </div>
 
+              {/* Update Quantity */}
+              <div className="flex justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="bg-gray-100 py-2 px-4 rounded-3xl flex items-center justify-between w-32">
+                        <button className="cursor-pointer text-xl" onClick={() => handleQuantity(item.id, 'd')}>-</button>
+                        {item.quantity}
+                        <button className="cursor-pointer text-xl" onClick={() => handleQuantity(item.id, 'i')}>+</button>
+                    </div>
+                    {
+                      item.product.stock === 0 ?(
+                        <div className='text-xl'>
+                          <span className='text-red-500'>Out of Stock</span>
+                        </div>
+                      ):(
+                        item.product.stock <= 10 &&(
+                          <div className='text-xs'>
+                            Only <span className="text-orange-500">{item.product.stock} items </span>
+                            left!<br/> {"Don't"}{""} miss it
+                          </div>
+                        )
+                      )
+                    }
+                </div>
+              </div>
+
+              {/* Buttons */}
               <div className="flex justify-between items-center">
                 <button 
                   className="ring-1 ring-gray-400 text-ashu px-4 py-2 rounded-md hover:bg-ashu hover:text-white hover:ring-0"
-                  onClick={() => handleRemove(item.product.id)}
+                  onClick={() => handleRemove(item.id)}
                 >
                   Remove
                 </button>
