@@ -1,8 +1,14 @@
+"use client";
 import Filter from "@/components/Filter";
 import ProductList from "@/components/ProductList";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 const ListPage = () => {
+    const searchParams = useSearchParams();
+    const categoryId = searchParams.get('cat') ? Number(searchParams.get('cat')) : null;
+    const categoryName = searchParams.get('name') || 'Products';
+    
     return (
         <div className="px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 relative">
             
@@ -26,8 +32,9 @@ const ListPage = () => {
             <Filter/>
 
             {/* Products */}
-            <h1 className="mt-12 text-xl font-semibold">Shoes For You!</h1>
-            <ProductList/>
+            <h1 className="mt-12 text-xl font-semibold">{categoryName} For You!</h1>
+            {/* <ProductList/> */}
+            <ProductList categoryId={categoryId} />
         </div>
     );
 };

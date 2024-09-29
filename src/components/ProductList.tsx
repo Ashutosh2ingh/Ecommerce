@@ -19,7 +19,7 @@ interface Size {
 }
 
 interface ProductVariation {
-    id: number;
+    id: number;     
     color: Color;
     size: Size;
     discount_price: number;
@@ -28,6 +28,7 @@ interface ProductVariation {
 interface ProductData {
     id: number;
     product_name: string;
+    category: number;
     variations: ProductVariation[];
     images: ProductImage[];
     featured: boolean;
@@ -38,11 +39,12 @@ interface ProductData {
 
 interface ProductListProps {
     filterType?: "featured" | "new";
+    categoryId?: number | null;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ filterType }) => {
+const ProductList: React.FC<ProductListProps> = ({ filterType, categoryId }) => {
     const [products, setProducts] = useState<ProductData[]>([]);
-
+    
     useEffect(() => {
         async function fetchData() {
             try {
@@ -55,16 +57,20 @@ const ProductList: React.FC<ProductListProps> = ({ filterType }) => {
                     data = data.filter(product => product.new).slice(0, 4);
                 }
 
+                if (categoryId) {
+                    data = data.filter(product => product.category == categoryId);
+                }
+
                 setProducts(data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         }
         fetchData();
-    }, [filterType]);    
+    }, [filterType, categoryId]);
 
     return (
-        <div className="mt-12 flex gap-x-8 gap-y-16 justify-between flex-wrap">
+        <div className="mt-12 flex gap-x-8 gap-y-16 justify-center flex-wrap">
             {products.map((product) => (
                 <Link 
                     href={{

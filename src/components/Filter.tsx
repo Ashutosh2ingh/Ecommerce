@@ -9,7 +9,7 @@ const Filter = () => {
                     <option value="physical">Physical</option>
                     <option value="digital">Digital</option>
                 </select>
-
+                
                 <input 
                     type="text" 
                     name="min" 

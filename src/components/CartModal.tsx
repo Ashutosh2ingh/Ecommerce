@@ -53,7 +53,7 @@ const CartModal: React.FC<CartModalProps> = ({ cartItems }) => {
                       <div className="flex items-center justify-between gap-8">
                         <h3 className="font-semibold">{item.product.product_name}</h3>
                         <div className="p-1 bg-gray-50 rounded-sm">
-                            ₹{item.product.discount_price}
+                          ₹{item.product.discount_price}
                         </div>
                       </div>
 
@@ -80,14 +80,14 @@ const CartModal: React.FC<CartModalProps> = ({ cartItems }) => {
             <div className="flex items-center justify-between font-semibold">
               <span>Subtotal</span>
               <span>
-                ${cartItems
-                    .reduce((acc, item) => {
-                        if (item.product.stock >= item.quantity) {
-                            return acc + parseFloat(item.product.discount_price) * item.quantity;
-                        }
-                        return acc;
-                    }, 0)
-                    .toFixed(2)
+                ₹{cartItems
+                  .reduce((acc, item) => {
+                    if (item.product.stock >= item.quantity) {
+                      return acc + parseFloat(item.product.discount_price) * item.quantity;
+                    }
+                    return acc;
+                  }, 0)
+                  .toFixed(2)
                 }
               </span>
             </div>

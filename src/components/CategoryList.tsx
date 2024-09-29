@@ -32,7 +32,14 @@ const CategoryList = () => {
         {
           category.map((item) => {
             return(
-              <Link href="/list?cat=test" className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/4 xl:w-1/5">
+              <Link 
+                key={item.id}
+                href={{
+                  pathname: '/list',
+                  query: { cat: item.id, name: item.category_name },
+                }}
+                className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/4 xl:w-1/5"
+              >
                 <div className="relative bg-slate-100 w-full h-96">
                   <Image src={item.category_image} alt="image" fill sizes="24vw" className="object-cover" />
                 </div>
