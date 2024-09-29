@@ -1,14 +1,26 @@
 "use client";
+import { useState } from "react";
 import Filter from "@/components/Filter";
 import ProductList from "@/components/ProductList";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 
 const ListPage = () => {
+
     const searchParams = useSearchParams();
     const categoryId = searchParams.get('cat') ? Number(searchParams.get('cat')) : null;
     const categoryName = searchParams.get('name') || 'Products';
-    
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(categoryId);
+    const [filterType, setFilterType] = useState<"new" | "featured" | null>(null);
+
+    const handleCategoryChange = (categoryId: number | null) => {
+        setSelectedCategoryId(categoryId);
+    };
+
+    const handleTypeChange = (type: "new" | "featured" | null) => {
+        setFilterType(type); // Update the filter type when user selects type
+    };
+
     return (
         <div className="px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 relative">
             
@@ -29,12 +41,13 @@ const ListPage = () => {
             </div>
 
             {/* Filter */}
-            <Filter/>
+            <Filter onCategoryChange={handleCategoryChange} onTypeChange={handleTypeChange} />
 
             {/* Products */}
             <h1 className="mt-12 text-xl font-semibold">{categoryName} For You!</h1>
+
             {/* <ProductList/> */}
-            <ProductList categoryId={categoryId} />
+            <ProductList categoryId={selectedCategoryId} filterType={filterType} />
         </div>
     );
 };

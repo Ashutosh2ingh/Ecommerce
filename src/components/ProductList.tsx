@@ -38,11 +38,13 @@ interface ProductData {
 }
 
 interface ProductListProps {
-    filterType?: "featured" | "new";
+    filterType?: "featured" | "new" | null;
     categoryId?: number | null;
+    limit?: number;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ filterType, categoryId }) => {
+const ProductList: React.FC<ProductListProps> = ({ filterType, categoryId, limit }) => {
+    
     const [products, setProducts] = useState<ProductData[]>([]);
     
     useEffect(() => {
@@ -52,13 +54,17 @@ const ProductList: React.FC<ProductListProps> = ({ filterType, categoryId }) => 
                 let data: ProductData[] = await response.json();
 
                 if (filterType === "featured") {
-                    data = data.filter(product => product.featured).slice(0, 4);
+                    data = data.filter(product => product.featured);
                 } else if (filterType === "new") {
-                    data = data.filter(product => product.new).slice(0, 4);
+                    data = data.filter(product => product.new);
                 }
 
                 if (categoryId) {
                     data = data.filter(product => product.category == categoryId);
+                }
+
+                if (limit) {
+                    data = data.slice(0, limit);
                 }
 
                 setProducts(data);
