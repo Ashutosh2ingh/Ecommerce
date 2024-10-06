@@ -4,7 +4,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Add from '@/components/Add';
 
 interface Product {
   id: number;
@@ -105,6 +104,7 @@ const CartDetails = () => {
 
   return (
     <div className="container mx-auto">
+      <ToastContainer/>
       {cartItems.map((item, index) => (
         <div key={item.id}>
           <motion.div
@@ -219,6 +219,11 @@ const CartDetails = () => {
           {index !== cartItems.length - 1 && (
             <div className="h-[2px] bg-gray-100 my-8" />
           )}
+
+          {index == cartItems.length-1 && (
+            <div className="mb-5"/>
+          )}
+          
         </div>
       ))}
     </div>

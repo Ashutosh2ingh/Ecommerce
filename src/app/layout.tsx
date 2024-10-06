@@ -16,13 +16,14 @@ export default function RootLayout({
   const pathname = usePathname();
   
   const showHeaderAndFooter = pathname !== "/login" && pathname !== "/register";
+  const showCartDetail = pathname !=="/cartDetails";
 
   return (
     <html lang="en">
       <body className={inter.className}>
         {showHeaderAndFooter && <Navbar />}
         {children}
-        {showHeaderAndFooter  && <Footer />}
+        {showHeaderAndFooter && showCartDetail && <Footer />}
       </body>
     </html>
   );
