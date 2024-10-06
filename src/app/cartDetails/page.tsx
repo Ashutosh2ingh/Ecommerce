@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Shipment from '@/components/shipment';
 
 interface Product {
   id: number;
@@ -24,6 +25,8 @@ interface CartItem {
 const CartDetails = () => {
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<CartItem | null>(null);
   const token = localStorage.getItem("token");
   
   // Fetch Cart Items
@@ -100,6 +103,16 @@ const CartDetails = () => {
         fetchCartItems(); 
       }, 1000);
     }
+  };
+
+  const handleBuyNowClick = (item: CartItem) => {
+    setSelectedProduct(item);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
   };
 
   return (
@@ -209,7 +222,10 @@ const CartDetails = () => {
                 >
                   Remove
                 </button>
-                <button className="bg-ashu text-white px-4 py-2 rounded-md hover:ring-1 hover:ring-gray-400 hover:text-ashu hover:bg-white">
+                <button 
+                  className="bg-ashu text-white px-4 py-2 rounded-md hover:ring-1 hover:ring-gray-400 hover:text-ashu hover:bg-white"
+                  onClick={() => handleBuyNowClick(item)}
+                >
                   Buy Now
                 </button>
               </div>  
@@ -226,6 +242,15 @@ const CartDetails = () => {
           
         </div>
       ))}
+
+      {/* Shipment Modal */}
+      {selectedProduct && (
+        <Shipment 
+          isOpen={isModalOpen} 
+          onClose={closeModal} 
+          productName={selectedProduct.product.product_name}
+        />
+      )}
     </div>
   );
 };
