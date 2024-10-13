@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import CustomButton from "@/components/CustomButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeIn } from '@/lib/variants';
-import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 
 interface ShipmentProps {
     isOpen: boolean;
     onClose: () => void;
     productName: string;
+    productPrice: string;
+    productQuantity: number;
 }
 
-const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => { 
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
+
+const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, productPrice, productQuantity }) => {
+
     const [shipmentAddress, setShipmentAddress] = useState({
         name: "",
-        email: "",  
+        email: "",
         phone: "",
         flat_building_no: "",
         city: "",
@@ -22,7 +30,22 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => 
         state: "",
         country: "",
     });
+    const [loading, setLoading] = useState(false);
+
     const token = localStorage.getItem('token');
+
+    useEffect(() => {
+        // Dynamically load the Razorpay script
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.async = true;
+        document.body.appendChild(script);
+
+        return () => {
+            // Clean up the script if the component unmounts
+            document.body.removeChild(script);
+        };
+    }, []);
 
     useEffect(() => {
 
@@ -46,9 +69,9 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => 
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setShipmentAddress({ 
-            ...shipmentAddress, 
-            [name]: value 
+        setShipmentAddress({
+            ...shipmentAddress,
+            [name]: value
         });
     };
 
@@ -59,7 +82,7 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => 
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Token ${token}`, 
+                    "Authorization": `Token ${token}`,
                 },
                 body: JSON.stringify(shipmentAddress),
             });
@@ -68,6 +91,7 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => 
                 toast.success(data.message);
                 setTimeout(() => {
                     onClose();
+                    initiateRazorpayPayment();
                 }, 3000);
             } else {
                 toast.error("Error updating Shipment Details");
@@ -77,11 +101,78 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => 
         }
     };
 
-    return(
+    const initiateRazorpayPayment = () => {
+        const product_price = parseFloat(productPrice);
+        const product_quantity = productQuantity;
+        const totalAmount = product_price * product_quantity * 100; 
+
+        const options = {
+            key: "rzp_test_y5XK5rBqc7230w", 
+            amount: totalAmount, 
+            currency: "INR",
+            name: "AshuStore",
+            description: "Test Transaction",
+            handler: async (
+                response: {
+                    razorpay_payment_id: string
+                }) => {
+                await handlePaymentSuccess(response, "success");
+            },
+            prefill: {
+                name: "ashuStore",
+                email: "user@example.com",
+                contact: "8707332099",
+            },
+            notes: {
+                address: "Razorpay Corporate Office",
+            },
+            theme: {
+                color: "#3399cc",
+            },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', async (response: any) => {
+            console.error("Payment failed:", response.error);
+            await handlePaymentSuccess(response, "failed");
+            toast.error("Payment failed. Please try again.");
+        });
+        rzp.open();
+    };
+
+    const handlePaymentSuccess = async (response: { razorpay_payment_id: string}, status: string) => {
+        try {
+            const paymentResponse = await fetch("http://127.0.0.1:8000/payment/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Token ${token}`,
+                },
+                body: JSON.stringify({
+                    amount: parseFloat(productPrice) * productQuantity,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    payment_status: status
+                }),
+            });
+
+            const paymentData = await paymentResponse.json();
+            if (paymentResponse.ok) {
+                toast.success(paymentData.message);
+            } else {
+                toast.error("Payment processed but failed to record the details.");
+            }
+        } catch (error) {
+            console.error("Error in saving payment:", error);
+            toast.error("Error in saving payment details");
+        }
+        setLoading(false);
+    };
+
+    return (
         <AnimatePresence>
             <ToastContainer />
             {isOpen && (
-                <motion.div 
+                <motion.div
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
                     variants={fadeIn('up', 0.2)}
                     initial="hidden"
@@ -95,7 +186,7 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => 
                                 >
                                     Shipment Details
                                 </h4>
-                                <form className="grid grid-cols-1 md:grid-cols-2 gap-6"  onSubmit={handleSubmit}>
+                                <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
                                     <div>
                                         <label className="block h5 font-medium">Name</label>
                                         <input
@@ -150,7 +241,7 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => 
                                         <label className="block h5 font-medium">Pincode</label>
                                         <input
                                             type="text"
-                                            name="zip"
+                                            name="pincode"
                                             value={shipmentAddress.pincode}
                                             onChange={handleChange}
                                             className="input-box border rounded-lg p-2 w-full"
@@ -176,9 +267,9 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName }) => 
                                             className="input-box border rounded-lg p-2 w-full"
                                         />
                                     </div>
-                                    <div className="mt-3 md:col-span-2 flex justify-center"> 
+                                    <div className="mt-3 md:col-span-2 flex justify-center">
                                         <CustomButton
-                                            text='Submit' 
+                                            text='Submit'
                                             containerStyles='md:w-[186px] md:h-[55px] w-[120px] h-[40px] rounded-lg'
                                         />
                                     </div>

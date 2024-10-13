@@ -249,6 +249,8 @@ const CartDetails = () => {
           isOpen={isModalOpen} 
           onClose={closeModal} 
           productName={selectedProduct.product.product_name}
+          productPrice={selectedProduct.product.discount_price}
+          productQuantity={selectedProduct.quantity}
         />
       )}
     </div>
