@@ -108,7 +108,7 @@ const CartDetails = () => {
   const handleBuyNowClick = (item: CartItem) => {
     setSelectedProduct(item);
     setIsModalOpen(true);
-  };
+  };  
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -251,6 +251,7 @@ const CartDetails = () => {
           productName={selectedProduct.product.product_name}
           productPrice={selectedProduct.product.discount_price}
           productQuantity={selectedProduct.quantity}
+          productVariationId={selectedProduct.product.id}
         />
       )}
     </div>

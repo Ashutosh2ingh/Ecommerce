@@ -10,6 +10,7 @@ interface ShipmentProps {
     productName: string;
     productPrice: string;
     productQuantity: number;
+    productVariationId: number;
 }
 
 declare global {
@@ -18,8 +19,8 @@ declare global {
     }
 }
 
-const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, productPrice, productQuantity }) => {
-
+const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, productPrice, productQuantity, productVariationId }) => {
+    
     const [shipmentAddress, setShipmentAddress] = useState({
         name: "",
         email: "",
@@ -156,10 +157,18 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
             });
 
             const paymentData = await paymentResponse.json();
-            if (paymentResponse.ok) {
-                toast.success(paymentData.message);
+            
+            if (paymentResponse.status === 200 || paymentResponse.status === 201) {
+
+                const orderId = await createOrder(response.razorpay_payment_id);
+                if (orderId) {
+                    toast.success("Order Placed successfully.");
+                } else {
+                    toast.error("Failed to create order.");
+                }
+
             } else {
-                toast.error("Payment processed but failed to record the details.");
+                toast.error(paymentData.message || "Payment processed but failed to record the details.");
             }
         } catch (error) {
             console.error("Error in saving payment:", error);
@@ -167,6 +176,36 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
         }
         setLoading(false);
     };
+
+    const createOrder = async (paymentId: string) => {
+        try {
+            
+            const response = await fetch("http://127.0.0.1:8000/create-order/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Token ${token}`,
+                },
+                body: JSON.stringify({
+                    payment_id: paymentId, 
+                    product_variation_id: productVariationId,
+                    quantity: productQuantity,
+                }),
+            });
+    
+            const orderData = await response.json();
+            
+            if (response.ok) {
+                return orderData.id; 
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error("Error in creating order:", error);
+            return null;
+        }
+    };
+    
 
     return (
         <AnimatePresence>
