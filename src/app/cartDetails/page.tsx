@@ -218,7 +218,7 @@ const CartDetails = () => {
               <div className="flex justify-between items-center">
                 <button 
                   className="ring-1 ring-gray-400 text-ashu px-4 py-2 rounded-md hover:bg-ashu hover:text-white hover:ring-0"
-                  onClick={() => handleRemove(item.id)}
+                  onClick={() => handleRemove(item.product.id)}
                 >
                   Remove
                 </button>
@@ -252,6 +252,7 @@ const CartDetails = () => {
           productPrice={selectedProduct.product.discount_price}
           productQuantity={selectedProduct.quantity}
           productVariationId={selectedProduct.product.id}
+          onOrderCreated={(productId) => handleRemove(productId)}
         />
       )}
     </div>

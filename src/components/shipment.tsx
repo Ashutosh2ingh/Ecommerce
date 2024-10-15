@@ -3,6 +3,7 @@ import CustomButton from "@/components/CustomButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeIn } from '@/lib/variants';
 import { toast, ToastContainer } from 'react-toastify';
+import OrderSuccessful from './OrderSuccessful';
 
 interface ShipmentProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ interface ShipmentProps {
     productPrice: string;
     productQuantity: number;
     productVariationId: number;
+    onOrderCreated: (productId: number) => void;
 }
 
 declare global {
@@ -19,7 +21,7 @@ declare global {
     }
 }
 
-const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, productPrice, productQuantity, productVariationId }) => {
+const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, productPrice, productQuantity, productVariationId, onOrderCreated }) => {
     
     const [shipmentAddress, setShipmentAddress] = useState({
         name: "",
@@ -32,7 +34,10 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
         country: "",
     });
     const [loading, setLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalClosing, setIsModalClosing] = useState(false);
 
+    
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -161,8 +166,19 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
             if (paymentResponse.status === 200 || paymentResponse.status === 201) {
 
                 const orderId = await createOrder(response.razorpay_payment_id);
+
                 if (orderId) {
-                    toast.success("Order Placed successfully.");
+                    onOrderCreated(productVariationId);
+                    setIsModalOpen(true);
+                    // Wait for 3 seconds before closing the modal
+                    setTimeout(() => {
+                        setIsModalClosing(true);
+                        // Wait for the modal's closing animation to finish before setting isModalOpen to false
+                        setTimeout(() => {
+                            setIsModalOpen(false);
+                            setIsModalClosing(false);
+                        }, 1000); // Assuming the closing animation takes 1 second
+                    }, 3000);
                 } else {
                     toast.error("Failed to create order.");
                 }
@@ -193,10 +209,10 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
                 }),
             });
     
-            const orderData = await response.json();
+            const orderData = await response.json();          
             
-            if (response.ok) {
-                return orderData.id; 
+            if (response.ok) {                
+                return orderData.data.order_id; 
             } else {
                 return null;
             }
@@ -221,10 +237,11 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
                     <div className="w-3/4 lg:w-2/4 max-h-[90vh] overflow-y-auto scrollbar-hide rounded-3xl">
                         <div className="bg-gray-100 p-6 rounded-lg shadow-md ">
                             <div className="mb-8">
-                                <h4 className="h2 font-semibold mb-8 text-accent text-center"
+                                <h4 className="h2 font-semibold mb-2 text-accent text-center"
                                 >
                                     Shipment Details
                                 </h4>
+                                <h3 className='h5 font-semibold mb-4 text-ashu text-center'>{productName}</h3>
                                 <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
                                     <div>
                                         <label className="block h5 font-medium">Name</label>
@@ -327,6 +344,16 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
                             </div>
                         </div>
                     </div>
+
+                    {
+                        isModalOpen && (
+                            <OrderSuccessful
+                                isOpen={isModalOpen}
+                                isClosing={isModalClosing}
+                                onClose={() => setIsModalOpen(false)}
+                            />
+                        )
+                    }
                 </motion.div>
             )}
         </AnimatePresence>
