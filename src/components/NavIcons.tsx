@@ -95,6 +95,9 @@ const NavIcons = () => {
                                 <>
                                     <Link href="/profile" className="font-semibold" onClick={()=> setIsProfileOpen((prev) => !prev)}>Profile</Link>
                                     <div className="mt-2 cursor-pointer font-semibold">
+                                        <Link href="/order" onClick={()=> setIsProfileOpen((prev) => !prev)}>Order</Link>
+                                    </div>
+                                    <div className="mt-2 cursor-pointer font-semibold">
                                         <button  onClick={handleLogout}>
                                             Logout
                                         </button>

@@ -3,7 +3,6 @@ import CustomButton from "@/components/CustomButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeIn } from '@/lib/variants';
 import { toast, ToastContainer } from 'react-toastify';
-import OrderSuccessful from './OrderSuccessful';
 
 interface ShipmentProps {
     isOpen: boolean;
@@ -22,7 +21,7 @@ declare global {
 }
 
 const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, productPrice, productQuantity, productVariationId, onOrderCreated }) => {
-    
+
     const [shipmentAddress, setShipmentAddress] = useState({
         name: "",
         email: "",
@@ -33,11 +32,6 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
         state: "",
         country: "",
     });
-    const [loading, setLoading] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isModalClosing, setIsModalClosing] = useState(false);
-
-    
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -110,11 +104,11 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
     const initiateRazorpayPayment = () => {
         const product_price = parseFloat(productPrice);
         const product_quantity = productQuantity;
-        const totalAmount = product_price * product_quantity * 100; 
+        const totalAmount = product_price * product_quantity * 100;
 
         const options = {
-            key: "rzp_test_y5XK5rBqc7230w", 
-            amount: totalAmount, 
+            key: "rzp_test_y5XK5rBqc7230w",
+            amount: totalAmount,
             currency: "INR",
             name: "AshuStore",
             description: "Test Transaction",
@@ -146,7 +140,7 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
         rzp.open();
     };
 
-    const handlePaymentSuccess = async (response: { razorpay_payment_id: string}, status: string) => {
+    const handlePaymentSuccess = async (response: { razorpay_payment_id: string }, status: string) => {
         try {
             const paymentResponse = await fetch("http://127.0.0.1:8000/payment/", {
                 method: "POST",
@@ -162,23 +156,13 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
             });
 
             const paymentData = await paymentResponse.json();
-            
+
             if (paymentResponse.status === 200 || paymentResponse.status === 201) {
 
                 const orderId = await createOrder(response.razorpay_payment_id);
 
                 if (orderId) {
                     onOrderCreated(productVariationId);
-                    setIsModalOpen(true);
-                    // Wait for 3 seconds before closing the modal
-                    setTimeout(() => {
-                        setIsModalClosing(true);
-                        // Wait for the modal's closing animation to finish before setting isModalOpen to false
-                        setTimeout(() => {
-                            setIsModalOpen(false);
-                            setIsModalClosing(false);
-                        }, 1000); // Assuming the closing animation takes 1 second
-                    }, 3000);
                 } else {
                     toast.error("Failed to create order.");
                 }
@@ -190,12 +174,11 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
             console.error("Error in saving payment:", error);
             toast.error("Error in saving payment details");
         }
-        setLoading(false);
     };
 
     const createOrder = async (paymentId: string) => {
         try {
-            
+
             const response = await fetch("http://127.0.0.1:8000/create-order/", {
                 method: "POST",
                 headers: {
@@ -203,16 +186,16 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
                     "Authorization": `Token ${token}`,
                 },
                 body: JSON.stringify({
-                    payment_id: paymentId, 
+                    payment_id: paymentId,
                     product_variation_id: productVariationId,
                     quantity: productQuantity,
                 }),
             });
-    
-            const orderData = await response.json();          
-            
-            if (response.ok) {                
-                return orderData.data.order_id; 
+
+            const orderData = await response.json();
+
+            if (response.ok) {
+                return orderData.data.order_id;
             } else {
                 return null;
             }
@@ -221,7 +204,6 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
             return null;
         }
     };
-    
 
     return (
         <AnimatePresence>
@@ -344,16 +326,6 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
                             </div>
                         </div>
                     </div>
-
-                    {
-                        isModalOpen && (
-                            <OrderSuccessful
-                                isOpen={isModalOpen}
-                                isClosing={isModalClosing}
-                                onClose={() => setIsModalOpen(false)}
-                            />
-                        )
-                    }
                 </motion.div>
             )}
         </AnimatePresence>

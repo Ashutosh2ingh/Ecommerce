@@ -17,13 +17,14 @@ export default function RootLayout({
   
   const showHeaderAndFooter = pathname !== "/login" && pathname !== "/register";
   const showCartDetail = pathname !=="/cartDetails";
+  const showOrder = pathname !=="/order";
 
   return (
     <html lang="en">
       <body className={inter.className}>
         {showHeaderAndFooter && <Navbar />}
         {children}
-        {showHeaderAndFooter && showCartDetail && <Footer />}
+        {showHeaderAndFooter && showCartDetail && showOrder && <Footer />}
       </body>
     </html>
   );
