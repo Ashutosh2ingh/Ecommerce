@@ -179,7 +179,7 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
     const createOrder = async (paymentId: string) => {
         try {
 
-            const response = await fetch("http://127.0.0.1:8000/create-order/", {
+            const response = await fetch("http://127.0.0.1:8000/order/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
