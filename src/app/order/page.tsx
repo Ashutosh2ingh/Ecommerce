@@ -76,7 +76,7 @@ const Order = () => {
       {order.map((item, index) => (
         <div key={item.order_id}>
           <motion.div
-            className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative flex flex-col lg:flex-row gap-16"
+            className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative flex flex-row gap-16"
             initial={{ opacity: 0 }}
             animate={{
               opacity: 1,
@@ -90,7 +90,7 @@ const Order = () => {
 
             {/* Image Section */}
             <motion.div
-              className="w-full lg:w-1/2 lg:sticky top-20 h-max"
+              className="w-1/2 lg:sticky top-20 h-max"
               initial={{ opacity: 0 }}
               animate={{
                 opacity: 1,
@@ -112,7 +112,7 @@ const Order = () => {
   
             {/* Text Section */}
             <motion.div
-              className="w-full lg:w-1/2 flex flex-col gap-2"
+              className="w-1/2 flex flex-col gap-2"
               initial={{ opacity: 0 }}
               animate={{
                 opacity: 1,
@@ -163,6 +163,7 @@ const Order = () => {
       <OrderDetails 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
+        orderId = {selectedOrder ? selectedOrder.order_id : null}
       />
     </div>
   );
