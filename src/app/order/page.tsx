@@ -29,11 +29,11 @@ interface OrderItem {
 
 const Order = () => {
 
-  const [order, setOrder] = useState<OrderItem[]>([]); 
+  const [order, setOrder] = useState<OrderItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
   const token = localStorage.getItem("token");
-  
+
   // Fetch Order Items
   const fetchOrderItems = async () => {
     const response = await fetch("http://127.0.0.1:8000/order/", {
@@ -44,9 +44,9 @@ const Order = () => {
     });
     if (response.ok) {
       const responseData = await response.json();
-      if (Array.isArray(responseData.data)){
+      if (Array.isArray(responseData.data)) {
         setOrder(responseData.data);
-      } 
+      }
     } else {
       console.error("Failed to fetch cart items");
     }
@@ -54,13 +54,13 @@ const Order = () => {
 
   // Call Order
   useEffect(() => {
-    fetchOrderItems(); 
+    fetchOrderItems();
   }, [token]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${day}-${month}-${year}`;
   };
@@ -109,7 +109,7 @@ const Order = () => {
                 className="object-cover rounded-md"
               />
             </motion.div>
-  
+
             {/* Text Section */}
             <motion.div
               className="w-1/2 flex flex-col gap-2"
@@ -123,14 +123,22 @@ const Order = () => {
                 },
               }}
             >
-              <h1 className="text-lg font-normal" style={{ textTransform: 'none' }}>
-                {item.order_status === "Delivered" 
+              <h1
+                className={`text-lg font-normal ${item.order_status === "Delivered"
+                    ? "text-green-500"
+                    : item.order_status === "Cancelled"
+                      ? "text-red-500"
+                      : "text-orange-500"
+                  }`}
+                style={{ textTransform: 'none' }}
+              >
+                {item.order_status === "Delivered"
                   ? `Delivered on ${formatDate(item.order_status_date)}`
                   : item.order_status === "Cancelled"
-                  ? `Cancelled on ${formatDate(item.order_status_date)}` 
-                  : `Ordered on ${formatDate(item.order_date)}`}
+                    ? `Cancelled on ${formatDate(item.order_status_date)}`
+                    : `Ordered on ${formatDate(item.order_date)}`}
               </h1>
-              <h1 
+              <h1
                 className="text-3xl font-medium cursor-pointer"
                 onClick={() => handleProductClick(item)}
               >
@@ -141,11 +149,11 @@ const Order = () => {
                   ₹{item.total_amount}
                 </h2>
               </div>
-                <p>
-                  {item.order_status === "Processing" 
-                    ? "Your Order is in Process"
-                    : `Your Order has been ${item.order_status}`}
-                </p>
+              <p>
+                {item.order_status === "Processing"
+                  ? "Your Order is in Process"
+                  : `Your Order has been ${item.order_status}`}
+              </p>
             </motion.div>
           </motion.div>
 
@@ -153,17 +161,17 @@ const Order = () => {
             <div className="h-[2px] bg-gray-100 my-8" />
           )}
 
-          {index == order.length-1 && (
-            <div className="mb-5"/>
+          {index == order.length - 1 && (
+            <div className="mb-5" />
           )}
-          
+
         </div>
       ))}
       {/* Modal for Order Details */}
-      <OrderDetails 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        orderId = {selectedOrder ? selectedOrder.order_id : null}
+      <OrderDetails
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        orderId={selectedOrder ? selectedOrder.order_id : null}
       />
     </div>
   );

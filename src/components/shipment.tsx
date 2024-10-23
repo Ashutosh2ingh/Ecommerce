@@ -3,6 +3,7 @@ import CustomButton from "@/components/CustomButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeIn } from '@/lib/variants';
 import { toast, ToastContainer } from 'react-toastify';
+import { useRouter } from "next/navigation";
 
 interface ShipmentProps {
     isOpen: boolean;
@@ -33,6 +34,7 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
         country: "",
     });
     const token = localStorage.getItem('token');
+    const router = useRouter();
 
     useEffect(() => {
         // Dynamically load the Razorpay script
@@ -163,6 +165,9 @@ const Shipment: React.FC<ShipmentProps> = ({ isOpen, onClose, productName, produ
 
                 if (orderId) {
                     onOrderCreated(productVariationId);
+                    setTimeout(() => {
+                        router.push('/order')
+                    }, 1000);
                 } else {
                     toast.error("Failed to create order.");
                 }
