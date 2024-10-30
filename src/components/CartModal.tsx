@@ -18,9 +18,10 @@ interface CartItem {
 
 interface CartModalProps {
   cartItems: CartItem[];
+  setIsCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const CartModal: React.FC<CartModalProps> = ({ cartItems }) => {
+const CartModal: React.FC<CartModalProps> = ({ cartItems, setIsCartOpen }) => {
 
   const router = useRouter();
 
@@ -97,7 +98,10 @@ const CartModal: React.FC<CartModalProps> = ({ cartItems }) => {
             <div className="flex justify-between text-sm">
               <button 
                 className="rounded-md py-3 px-4 ring-1 bg-black text-white ring-gray-300 hover:text-black hover:bg-white"
-                onClick={() => router.push('/cartDetails')}
+                onClick={() => {
+                  router.push('/cartDetails');
+                  setIsCartOpen(false);
+                }}
               >
                 View Cart
               </button>

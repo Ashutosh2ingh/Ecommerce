@@ -116,14 +116,6 @@ const NavIcons = () => {
                 )
             }
 
-            <Image 
-                src="/notification.png" 
-                alt="navicon" 
-                width={22} 
-                height={22} 
-                className="cursor-pointer" 
-            />
-
             <div 
                 className="relative cursor-pointer" 
                 onClick={() => setIsCartOpen((prev) => !prev)} 
@@ -140,7 +132,7 @@ const NavIcons = () => {
             </div>
             {
                 isCartOpen && (
-                    <CartModal cartItems={cartItems} />
+                    <CartModal cartItems={cartItems} setIsCartOpen={setIsCartOpen} />
                 )
             }
         </div>

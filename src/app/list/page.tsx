@@ -4,26 +4,29 @@ import Filter from "@/components/Filter";
 import ProductList from "@/components/ProductList";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const ListPage = () => {
-
     const searchParams = useSearchParams();
-    const categoryId = searchParams.get('cat') ? Number(searchParams.get('cat')) : null;
-    const categoryName = searchParams.get('name') || 'Products';
-    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(categoryId);
+    const initialCategoryId = searchParams.get('cat') ? Number(searchParams.get('cat')) : null;
+    const initialCategoryName = searchParams.get('name') || 'Products';
+
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId);
+    const [categoryName, setCategoryName] = useState<string>(initialCategoryName);
     const [filterType, setFilterType] = useState<"new" | "featured" | null>(null);
 
-    const handleCategoryChange = (categoryId: number | null) => {
+    const handleCategoryChange = (categoryId: number | null, categoryName: string) => {
         setSelectedCategoryId(categoryId);
+        setCategoryName(categoryName); // Update the category name when user selects a category
     };
 
     const handleTypeChange = (type: "new" | "featured" | null) => {
-        setFilterType(type); // Update the filter type when user selects type
+        setFilterType(type);
     };
+    const router = useRouter();
 
     return (
         <div className="px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 relative">
-            
             {/* Campaign */}
             <div className="hidden bg-pink-50 px-4 sm:flex justify-between h-64">
                 <div className="w-2/3 flex flex-col items-center justify-center gap-8">
@@ -31,7 +34,10 @@ const ListPage = () => {
                         Grab up to 50% off on
                         <br/> Selected Products
                     </h1>
-                    <button className="rounded-3xl bg-ashu text-white w-max py-3 px-5">
+                    <button 
+                        className="rounded-3xl bg-ashu text-white w-max py-3 px-5"
+                        onClick={()=> router.push('/allProduct')}
+                    >
                         Buy Now
                     </button>
                 </div>
@@ -45,8 +51,6 @@ const ListPage = () => {
 
             {/* Products */}
             <h1 className="mt-12 text-xl font-semibold">{categoryName} For You!</h1>
-
-            {/* <ProductList/> */}
             <ProductList categoryId={selectedCategoryId} filterType={filterType} />
         </div>
     );

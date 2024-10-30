@@ -2,13 +2,13 @@
 import { useState, useEffect } from "react";
 
 interface CategoryData {
-  id: number;
-  category_name: string;
+    id: number;
+    category_name: string;
 }
 
 interface FilterProps {
-    onCategoryChange: (categoryId: number | null) => void;
-    onTypeChange: (type: "new" | "featured" | null) => void; 
+    onCategoryChange: (categoryId: number | null, categoryName: string) => void;
+    onTypeChange: (type: "new" | "featured" | null) => void;
 }
 
 const Filter: React.FC<FilterProps> = ({ onCategoryChange, onTypeChange }) => {
@@ -30,13 +30,14 @@ const Filter: React.FC<FilterProps> = ({ onCategoryChange, onTypeChange }) => {
 
     const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const categoryId = e.target.value ? Number(e.target.value) : null;
-        onCategoryChange(categoryId);
+        const categoryName = e.target.selectedOptions[0].textContent || 'Products';
+        onCategoryChange(categoryId, categoryName);
     };
 
     const handleTypeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedType = e.target.value === "new" || e.target.value === "featured"
-          ? e.target.value
-          : null;
+            ? e.target.value
+            : null;
         onTypeChange(selectedType);
     };
 
@@ -45,9 +46,9 @@ const Filter: React.FC<FilterProps> = ({ onCategoryChange, onTypeChange }) => {
             <div className="flex gap-6 flex-wrap">
 
                 {/* Type */}
-                <select 
-                    name="type" 
-                    id="" 
+                <select
+                    name="type"
+                    id=""
                     className="py-2 px-4 rounded-2xl text-xs font-medium bg-[#EBEDED]"
                     onChange={handleTypeSelect}
                 >
@@ -64,21 +65,6 @@ const Filter: React.FC<FilterProps> = ({ onCategoryChange, onTypeChange }) => {
                             {category.category_name}
                         </option>
                     ))}
-                </select>
-            </div>
-                
-            {/* Price */}
-            <div className="">
-                <select 
-                    name="" 
-                    id=""
-                    className="py-2 px-4 rounded-2xl text-xs font-medium bg-white ring-1 ring-gray-400"
-                >
-                    <option>Sort By</option>
-                    <option value="">Price (low ot high)</option>
-                    <option value="">Price (high to low)</option>
-                    <option value="">Newest</option>
-                    <option value="">Oldest</option>
                 </select>
             </div>
         </div>
